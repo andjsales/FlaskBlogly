@@ -4,11 +4,20 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>{% block title %}Blogly{% endblock %}</title>
+
     </head>
+    <nav>
+        <a href="/users">Home</a>
+        <a href="/users/new">Add User</a><br><br>
+    </nav>
 
     <body>
-
+        <hr>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
     </body>
 
 </html>
