@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ user.get_full_name() }}</h2>
+<p>First Name: {{ user.first_name }}</p>
+<p>Last Name: {{ user.last_name }}</p>
+<p>Image URL: {{ user.image_url }}</p>
+<a href="/users/{{ user.id }}/edit">Edit User</a><br>
+<br><br>
+<form method="post" action="/users/{{ user.id }}/delete">
+    <button type="submit">Delete User</button>
+</form>
+
+
+{% endblock %}
