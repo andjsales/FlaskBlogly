@@ -1,5 +1,7 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>{{user.full_name}} was successfully deleted!</h1>
+<h1>{{user.full_name}} Successfully deleted!</h1>
+<br>
+<a href="/users">Back to Homepage</a>
 {% endblock %}

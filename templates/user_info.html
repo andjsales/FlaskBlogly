@@ -1,15 +1,31 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h2>{{ user.get_full_name() }}</h2>
+<h1>{{ user.get_full_name() }}</h1>
 <p>First Name: {{ user.first_name }}</p>
 <p>Last Name: {{ user.last_name }}</p>
-<p>Image URL: {{ user.image_url }}</p>
-<a href="/users/{{ user.id }}/edit">Edit User</a><br>
-<br><br>
+<img src="{{ user.image_url }}" alt="Default Image"><br><br>
+<a href="/users/{{ user.id }}/edit">Edit Profile</a><br>
+<a href="/users/{{ user.id }}/posts/new">Create Post</a><br><br><br>
 <form method="post" action="/users/{{ user.id }}/delete">
     <button type="submit">Delete User</button>
 </form>
-
-
+<hr>
+<div>
+    <h1>All Posts:</h1>
+</div>
+{% for post in posts %}
+<ul>
+    <li>
+        <h5>{{ post.title }}</h5>
+        <p>{{ post.content }}</p>
+    </li>
+    <i>
+        <label for="author">By: {{ user.first_name }}</label>
+    </i><br>
+</ul>
+<a href="/posts/{{ post.id }}/edit">Edit >></a>
+<br><br>
+<hr>
+{% endfor %}
 {% endblock %}
