@@ -10,10 +10,11 @@
 
     </head>
     <nav class="nav-link">
-        <a href="/users">Home</a>
-        <a href="/users/new" class="m-4">Create User</a>
-        <a href="/users/{{ user.id }}">{{ user.get_full_name() }}</a>
-        <br>
+        <a href="/users" class="m-4">Home</a>
+        <a href="/tags">All Tags</a>
+        <a href="/tags/new" class="m-4">Add Tag</a>
+        <a href="/users/new">Create User</a>
+        <a href="/users/{{ user.id }}" class="m-4">{{user.get_full_name()}}</a>
     </nav>
 
     <body>

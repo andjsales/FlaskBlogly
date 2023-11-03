@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, request
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 app = Flask(__name__)
 
@@ -17,17 +17,6 @@ def homepage():
     return redirect("/users")
 
 
-# @app.route('/users')
-# def list_users():
-#     """
-#     Show all users
-#     """
-#     users = User.query.all()
-#     current_user = User.query.get(1)
-
-#     return render_template('users.html', users=users, user=current_user)
-
-
 @app.route('/users')
 def list_users():
     """
@@ -35,7 +24,7 @@ def list_users():
     """
     users = User.query.all()
     current_user = User.query.first()
-    return render_template('users.html', users=users, user=current_user)
+    return render_template('/user/users.html', users=users, user=current_user)
 
 
 @app.route('/users/new', methods=["GET", "POST"])
@@ -55,7 +44,7 @@ def add_user():
         return redirect('/users')
     else:
         current_user = User.query.first()
-        return render_template('user_new.html', user=current_user)
+        return render_template('/user/user_new.html', user=current_user)
 
 
 @app.route('/users/<int:user_id>', methods=['GET'])
@@ -65,7 +54,7 @@ def show_user(user_id):
     """
     user = User.query.get_or_404(user_id)
     posts = Post.query.filter_by(user_id=user.id).all()
-    return render_template('user_info.html', user=user, posts=posts)
+    return render_template('/user/user_info.html', user=user, posts=posts)
 
 
 @app.route('/users/<int:user_id>/edit', methods=["GET", "POST"])
@@ -80,7 +69,7 @@ def edit_user(user_id):
         user.image_url = request.form['image_url']
         db.session.commit()
         return redirect('/users')
-    return render_template('user_edit.html', user=user)
+    return render_template('/user/user_edit.html', user=user)
 
 
 @app.route('/users/<int:user_id>/delete', methods=["POST"])
@@ -91,7 +80,7 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     db.session.delete(user)
     db.session.commit()
-    return render_template('user_delete.html', user=user)
+    return render_template('/user/user_delete.html', user=user)
 
 # POST HANDELING ########################################
 
@@ -102,16 +91,18 @@ def add_user_post(user_id):
     - Show display
     - Post submission
     """
-    user = User.query.get_or_404(user_id)  # Fetch the user first
-
+    user = User.query.get_or_404(user_id)
     if request.method == "POST":
+        tag_ids = request.form.getlist("tags")
         post_new = Post(
-            title=request.form["title"], content=request.form["content"], user_id=user.id)  # Use user_id if it's a foreign key in Post model
+            title=request.form["title"], content=request.form["content"], user_id=user.id, tags=Tag.query.filter(
+                Tag.id.in_(tag_ids)).all()
+        )
         db.session.add(post_new)
         db.session.commit()
         return redirect(f"/users/{user_id}")
-
-    return render_template('post_new.html', user=user)
+    tags = Tag.query.all()
+    return render_template('/post/post_new.html', user=user, tags=tags)
 
 
 @app.route('/posts/<int:post_id>/edit', methods=["GET", "POST"])
@@ -127,10 +118,13 @@ def edit_show_post(post_id):
     if request.method == 'POST':
         post.title = request.form['title']
         post.content = request.form['content']
+        tag_ids = request.form.getlist("tags")
+        post.tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
         db.session.commit()
         return redirect(f'/users/{user.id}')
+    tags = Tag.query.all()
 
-    return render_template('post_edit.html', user=user, post=post)
+    return render_template('/post/post_edit.html', user=user, post=post, tags=tags)
 
 
 @app.route('/posts/<int:post_id>/delete', methods=["POST"])
@@ -139,6 +133,81 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return redirect(f'/users/{post.user_id}')
+
+
+# TAG HANDELING ###############################################
+
+@app.route('/tags', methods=["GET"])
+def show_tags():
+    """
+    - Lists all tags
+    - links to the tag detail page
+    """
+    user = User.query.first()
+    tags = Tag.query.order_by(Tag.name).all()
+    return render_template("/tags/tags.html", user=user, tags=tags)
+
+
+@app.route('/tags/<int:tag_id>', methods=["GET", "POST"])
+def info_tag(tag_id):
+    """
+    - detail about tag
+    - edit tag  
+    """
+    user = User.query.first()
+    tag = Tag.query.get_or_404(tag_id)
+    if request.method == "POST":
+        tag.name = request.form["tag_name"]
+        db.session.commit()
+        return redirect(f"/tags")
+    return render_template("/tags/tag_info.html", user=user, tag=tag)
+
+
+@app.route('/tags/<int:tag_id>/delete', methods=["POST"])
+def delete_tag(tag_id):
+    """
+    - delete tag
+    """
+    tag = Tag.query.get_or_404(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    return redirect('/tags')
+
+
+@app.route('/tags/new', methods=["GET"])
+def show_add_tag_form():
+    """
+    - form to add new tag
+    """
+    user = User.query.first()
+    return render_template("tags/tag_new.html", user=user)
+
+
+@app.route('/tags/new', methods=["POST"])
+def add_tag():
+    """
+    - Process add form
+    """
+    new_tag = Tag(name=request.form["tag_name"])
+    db.session.add(new_tag)
+    db.session.commit()
+    return redirect("/tags")
+
+
+# @app.route('/tags/<int:tag_id>/edit', methods=["GET"])
+# """
+# Show edit form for a tag
+# """
+
+# @app.route('/tags/<int:tag_id>/edit', methods=["POST"])
+# """
+# Process edit form, edit tag, and redirects to the tags list
+# """
+
+# @app.route('/tags/[tag-id]/delete', methods=["POST"])
+# """
+# delete a tag
+# """
 
 
 if __name__ == '__main__':

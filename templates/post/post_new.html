@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create Post for {{ user.get_full_name() }}</h1>
+<hr>
+<form action="/users/{{ user.id }}/posts/new" method="POST">
+    <label for="title">Post Title:</label>
+    <br>
+    <input type="text" id="title" name="title">
+    <br>
+    <br>
+    <label for="content">Post Content:</label>
+    <br>
+    <textarea name="content" id="content" cols="40" rows="5"></textarea>
+    <br>
+    <br>
+    <label>Tags:</label>
+    <br>
+    {% for tag in tags %}
+    <input type="checkbox" name="tags" value="{{ tag.id }}">
+    <label for="tags">{{ tag.name }}</label>
+    <br>
+    {% endfor %}
+    <br>
+    <br>
+    <button type="submit">Submit Post</button>
+</form>
+{% endblock %}

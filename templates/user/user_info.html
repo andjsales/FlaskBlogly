@@ -6,13 +6,13 @@
 <p>Last Name: {{ user.last_name }}</p>
 <img src="{{ user.image_url }}" alt="Default Image"><br><br>
 <a href="/users/{{ user.id }}/edit">Edit Profile</a><br>
-<a href="/users/{{ user.id }}/posts/new">Create Post</a><br><br><br>
+<a href="/users/{{ user.id }}/posts/new">Create Post</a><br><br>
 <form method="post" action="/users/{{ user.id }}/delete">
     <button type="submit">Delete User</button>
 </form>
 <hr>
 <div>
-    <h1>All Posts:</h1>
+    <h1>All Posts:</h1><br>
 </div>
 {% for post in posts %}
 <ul>
@@ -20,9 +20,16 @@
         <h5>{{ post.title }}</h5>
         <p>{{ post.content }}</p>
     </li>
-    <i>
-        <label for="author">By: {{ user.first_name }}</label>
-    </i><br>
+    {% for tag in post.tags %}
+    <ul>
+        <i>
+            <li>#{{ tag.name }}</li>
+        </i>
+    </ul>
+    {% endfor %}
+    <br>
+    <label for="author">By: {{ user.first_name }}</label>
+    <br>
 </ul>
 <a href="/posts/{{ post.id }}/edit">Edit >></a>
 <br><br>
